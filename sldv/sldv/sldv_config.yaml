@@ -1,0 +1,25 @@
+---
+  # Path to the Simulink model to be tested.
+  system_under_test: 'C:\Users\mwilliams\SLDV\simulink_models\sldvexFloatingPointErrorChecks.slx'
+
+  # Path to directory where results will be written.
+  results_dir: 'C:\Users\mwilliams\SLDV\results'
+
+  # Path to configuration files, test vectors, ut template, etc, for model specific tests.
+  unit_test_dir: 'C:\Users\mwilliams\SLDV\ut'
+
+  # Constrain SLDV by setting range limits on input signals prior to test generation.
+  # - limits defined per model in unit test directory.
+  enable_range_limits: False
+
+# Run user defined test cases
+#  enable_unit_test = False
+...
+
+# Note: Mode setting moved to constants.py
+#  modes:
+#    - 'DesignErrorDetection'
+#    - 'TestGeneration'
+#    - 'PropertyProving'
+
+
