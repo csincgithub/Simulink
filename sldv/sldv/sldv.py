@@ -46,6 +46,8 @@ class Sldv:
         """Run Simulink Design Verifier on selected model"""
         start_time = datetime.now()
         pm = self.test_setup()
+        simulink_models_dir = pm['simulink_models_dir']
+        self.eng.addpath(self.eng.genpath(simulink_models_dir))
         system_under_test = pm['system_under_test']
         enable_range_limits = pm['enable_range_limits']
         unit_test_dir = pm['unit_test_dir']
@@ -93,18 +95,19 @@ class Sldv:
                      DISPLAY_REPORT, 'OutputDir', model_results, nargout=0)
 
         (status, output_files) = self.eng.sldvrun(mdl, opts, nargout=2)  # returns type tuple
-        _logger.info("status = " + str(status))
+        # _logger.info("status = " + str(status))
         sldv_data_file = output_files['DataFile']
         harness = output_files['HarnessModel']
         # test_gen_report = output_files['Report']
 
         if (status == 1) and (MODE == 'TestGeneration'):
-            _logger.info(model_name + " is compatible with Simulink Design Verifier.")
+            _logger.info(model_name + " is compatible for " + MODE + " with Simulink Design Verifier.")
             coverage_report = os.path.join(model_results, '{}_coverage_report.html'.format(model_name))
+
             self.eng.run_tests(mdl, sldv_data_file, coverage_report, model_results, model_name, harness,
                                system_under_test, unit_test_dir, opts, nargout=0)
         elif (status == 1) and (MODE == 'DesignErrorDetection'):
-            _logger.info(model_name + " is compatible for test generation with Simulink Design Verifier.")
+            _logger.info(model_name + " is compatible for " + MODE + " with Simulink Design Verifier.")
         else:  # status == 0
             _logger.info(model_name + " is not compatible with Simulink Design Verifier.")
 

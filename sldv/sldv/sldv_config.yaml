@@ -1,6 +1,12 @@
 ---
+  # Add this directory to the MATLAB path so Simulink can find the submodule diagrams.
+  simulink_models_dir: 'C:\Users\mwilliams\SLDV\simulink_models'
+
   # Path to the Simulink model to be tested.
-  system_under_test: 'C:\Users\mwilliams\SLDV\simulink_models\sldvexFloatingPointErrorChecks.slx'
+#  system_under_test: 'C:\Users\mwilliams\SLDV\simulink_models\sldvexFloatingPointErrorChecks.slx'
+  system_under_test: 'C:\Users\mwilliams\SLDV\simulink_models\sldvexRollApController.slx'
+#  system_under_test: 'C:\Users\mwilliams\SLDV\simulink_models\sldvdemo_array_bounds.slx'
+#  system_under_test: 'C:\Users\mwilliams\SLDV\simulink_models\my_stateflow_1.slx'
 
   # Path to directory where results will be written.
   results_dir: 'C:\Users\mwilliams\SLDV\results'
