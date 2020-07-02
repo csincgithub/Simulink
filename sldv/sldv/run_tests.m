@@ -8,23 +8,60 @@ matObj = matfile(sldv_data_file);
 m = matObj.sldvData;
 tc = m.('TestCases');
 num_testcases = numel(tc);
-%info = m.('AnalysisInformation');
+info = m.('AnalysisInformation');
+num_signals_in = numel(info.InputPortInfo);
+%num_signals_out = numel(info.OutputPortInfo);
 
 % -------------------------------------------------------------------------------------------------------------------
 % Enable data logging for each blocks (out) port handles
 % -------------------------------------------------------------------------------------------------------------------
-
 block_handles = find_system(mdl, 'Type', 'Block');
 num_blocks = numel(block_handles);
 for blk_idx = 1:num_blocks
-    ph = get_param(block_handles(blk_idx), 'PortHandles');
-    if isempty(ph.Outport) == false
-        ph.Outport;
-        set_param(ph.Outport, 'DataLogging', 'on');
+    port_handle = get_param(block_handles(blk_idx), 'PortHandles');
+    if isempty(port_handle.Outport) == false
+        port_handle.Outport;
+        set_param(port_handle.Outport, 'DataLogging', 'on');
     else
         % skip the model's Outport blocks
     end
 end
+
+% -------------------------------------------------------------------------------------------------------------------
+% Enable to write input attributes to unit test template
+% -------------------------------------------------------------------------------------------------------------------
+block_path_arr = {};
+signal_labels_arr = {};
+data_type_arr = {};
+complexity_arr = {};
+sample_time_arr = {};
+
+for idx = 1:num_signals_in
+    block_path = info.InputPortInfo{idx}.BlockPath;
+    signal_labels = info.InputPortInfo{idx}.SignalLabels;
+%    signal_name = info.InputPortInfo{idx}.SignalName;
+    data_type = info.InputPortInfo{idx}.DataType;
+    complexity = info.InputPortInfo{idx}.Complexity;
+    sample_time = info.InputPortInfo{idx}.SampleTime;
+%    signal_hierarchy = info.InputPortInfo{idx}.SignalHierarchy;
+    block_path_arr(end + 1) = cellstr(block_path);
+    signal_labels_arr(end + 1) = cellstr(signal_labels);
+    data_type_arr(end + 1) = cellstr(data_type);
+    complexity_arr(end + 1) = cellstr(complexity);
+%    sample_time_arr(end + 1) = num2cell(sample_time) % , num_signals_in);
+end
+% Write inputs to unit test spreadsheet
+unit_test_xl = fullfile(unit_test_dir, 'ut_dev.xlsx');
+block_path_vec = block_path_arr';
+signal_labels_vec = signal_labels_arr';
+data_type_vec = data_type_arr';
+complexity_vec = complexity_arr';
+sample_time_vec = sample_time_arr';
+writecell(block_path_vec, unit_test_xl, 'Sheet', 'INPUTS', 'Range', 'A2');  % BLOCK PATH
+writecell(signal_labels_vec, unit_test_xl, 'Sheet', 'INPUTS', 'Range', 'B2');  % SIGNAL LABEL
+writecell(data_type_vec, unit_test_xl, 'Sheet', 'INPUTS', 'Range', 'C2');  % DATA TYPE
+writecell(complexity_vec, unit_test_xl, 'Sheet', 'INPUTS', 'Range', 'D2');  % COMPLEXITY
+writecell(sample_time_vec, unit_test_xl, 'Sheet', 'INPUTS', 'Range', 'E2');  % SAMPLE TIME
 
 % -------------------------------------------------------------------------------------------------------------------
 % Set options and run tests
@@ -71,9 +108,9 @@ for tidx = 1:num_testcases
         block_name_arr(end + 1) = cellstr(block_name_unique);
     end
 
-    % Write all values to unit test template. Include In, Out, and intermediate.
+    % Write data to spreadsheet - this includes input, output, and intermediate values.
     final_name_arr = [{'Time'}, block_name_arr];  % Concat with time
     inter_table = array2table(inter_arr, 'VariableNames', final_name_arr);
-    writetable(inter_table, fullfile(model_results, insertBefore('_UT.xls', '_', model_name)),...
+    writetable(inter_table, fullfile(model_results, insertBefore('_ut.xls', '_', model_name)),...
     'Sheet', insertAfter('TC', 'C', num2str(test_case)));
 end
